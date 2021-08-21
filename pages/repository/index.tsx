@@ -5,31 +5,34 @@ import { useFormik } from 'formik';
 import { requester } from '../../apis/requester';
 
 // username: 콤마로 분리
+// permission: select로 변경 필요
 type Form = {
   token: string;
-  org: string;
-  teamSlug: string;
+  owner: string;
+  permission: 'triage';
+  repository: string;
   username: string;
 };
 
 const placeholders: { [key in keyof Form]: string } = {
   token: 'github personal access token',
-  org: 'target organization',
-  teamSlug: `target team's team_slug`,
+  owner: 'owner',
+  permission: '권한',
+  repository: 'repository name',
   username: ', (콤마) 로 구분된 공백 없는 리스트여야 합니다. 예) woohm402,ars-ki-00,...',
 };
 
-const Main: React.FC = () => {
+const Repository: React.FC = () => {
   const [failedList, setFailedList] = useState<string[]>([]);
 
   const { values, handleSubmit, handleChange } = useFormik<Form>({
-    initialValues: { token: '', org: '', teamSlug: '', username: '' },
+    initialValues: { token: '', owner: '', repository: '', username: '', permission: 'triage' },
     onSubmit: async (values) => {
       const usernames = values.username.split(',');
 
       for (const item of usernames) {
         try {
-          await inviteUser(values.org, values.teamSlug, item, values.token);
+          await inviteUser(values.owner, values.repository, item, values.permission, values.token);
           console.log(`[succeed] ${item}`);
         } catch (err) {
           console.log(`[failed ] ${item}`);
@@ -39,17 +42,21 @@ const Main: React.FC = () => {
     },
   });
 
-  const inviteUser = async (org: string, teamSlug: string, username: string, token: string) => {
-    await requester.put(`/orgs/${org}/teams/${teamSlug}/memberships/${username}`, null, {
-      headers: {
-        Authorization: `token ${token}`,
-      },
-    });
+  const inviteUser = async (owner: string, repository: string, username: string, permission: string, token: string) => {
+    await requester.put(
+      `/repos/${owner}/${repository}/collaborators/${username}`,
+      { permission },
+      {
+        headers: {
+          Authorization: `token ${token}`,
+        },
+      }
+    );
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      {['token', 'org', 'teamSlug', 'username'].map((item, i) => (
+      {['token', 'owner', 'repository', 'permission', 'username'].map((item, i) => (
         <div key={i}>
           <span style={{ width: 200, display: 'inline-block', textAlign: 'center', margin: 10 }}>{item}</span>
           <textarea
@@ -75,4 +82,4 @@ const Main: React.FC = () => {
   );
 };
 
-export default Main;
+export default Repository;
