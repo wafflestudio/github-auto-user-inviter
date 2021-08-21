@@ -54,6 +54,8 @@ const Repository: React.FC = () => {
     );
   };
 
+  const failedListWithComma = failedList.length >= 1 && failedList.reduce((acc, cur) => acc + ',' + cur);
+
   return (
     <form onSubmit={handleSubmit}>
       {['token', 'owner', 'repository', 'permission', 'username'].map((item, i) => (
@@ -72,12 +74,18 @@ const Repository: React.FC = () => {
       <br />
       <br />
       <div>
-        실패 아이디 목록
+        실패 아이디 목록{' '}
+        <button type={'button'} onClick={() => setFailedList([])}>
+          목록 날리기
+        </button>
         {failedList.map((item, i) => (
           <p key={i}>{item}</p>
         ))}
       </div>
       <button type={'submit'}>초대</button>
+      <button type={'button'} onClick={() => navigator.clipboard.writeText(failedListWithComma || '')}>
+        실패 목록 클립보드로 복사
+      </button>
     </form>
   );
 };
