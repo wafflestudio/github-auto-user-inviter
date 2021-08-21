@@ -23,7 +23,7 @@ const Main: React.FC = () => {
   const [failedList, setFailedList] = useState<string[]>([]);
 
   const { values, handleSubmit, handleChange } = useFormik<Form>({
-    initialValues: { token: '', org: 'wafflestudio', teamSlug: '19-5-rookies', username: '' },
+    initialValues: { token: '', org: '', teamSlug: '', username: '' },
     onSubmit: async (values) => {
       const usernames = values.username.split(',');
 
