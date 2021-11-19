@@ -30,7 +30,7 @@ const IDListWrapper = styled('ul')({
 
 const FormCard = styled(Card)({
   position: 'fixed',
-  left: '10vw',
+  left: '5vw',
   width: '50vw',
   top: 'calc(50% - 300px)',
   bottom: 'calc(50% - 300px)',
@@ -39,8 +39,8 @@ const FormCard = styled(Card)({
 
 const IDListSucceedCard = styled(Card)({
   position: 'fixed',
-  right: '10vw',
-  width: '25vw',
+  right: '5vw',
+  width: '35vw',
   top: 'calc(50% - 300px)',
   bottom: 'calc(50% + 20px)',
   padding: 30,
@@ -48,8 +48,8 @@ const IDListSucceedCard = styled(Card)({
 
 const IDListFailedCard = styled(Card)({
   position: 'fixed',
-  right: '10vw',
-  width: '25vw',
+  right: '5vw',
+  width: '35vw',
   top: 'calc(50% + 20px)',
   bottom: 'calc(50% - 300px)',
   padding: 30,
