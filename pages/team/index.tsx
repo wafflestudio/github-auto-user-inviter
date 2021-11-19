@@ -95,7 +95,16 @@ const Team: React.FC = () => {
       <FormCard>
         <CardContent>
           {Object.entries(placeholders).map(([key, value], i) => (
-            <Input key={i} label={key} value={values[key as keyof Form]} name={key} onChange={handleChange} placeholder={value} />
+            <Input
+              type={key === 'personal access token' ? 'password' : 'text'}
+              autoComplete={'off'}
+              key={i}
+              label={key}
+              value={values[key as keyof Form]}
+              name={key}
+              onChange={handleChange}
+              placeholder={value}
+            />
           ))}
         </CardContent>
         <CardActions>
