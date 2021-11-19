@@ -21,9 +21,10 @@ const Home: React.FC = () => {
       <Typography variant="h3" textAlign="center">
         Github Auto User Inviter
       </Typography>
-      <MuiLink href="https://github.com/wafflestudio/github-auto-user-inviter" textAlign="center" sx={{ marginBottom: '10px' }}>
+      <MuiLink href="https://github.com/wafflestudio/github-auto-user-inviter" textAlign="center" sx={{ marginBottom: '20px' }}>
         Github
       </MuiLink>
+      <Typography variant="body1">console에 로그 찍히는 것 확인하면서 사용하세요!</Typography>
       <LinkCard>
         <Link href="/repository" passHref>
           <ActionArea>
@@ -36,7 +37,11 @@ const Home: React.FC = () => {
         <Link href="/team" passHref>
           <ActionArea>
             <Typography variant="h5">/team</Typography>
-            <Typography variant="body1">특정 팀에 유저들 초대</Typography>
+            <Typography variant="body1">
+              특정 팀에 유저들 초대
+              <br />
+              organization에 초대 안 되어있을 경우 invitation도 보냄
+            </Typography>
           </ActionArea>
         </Link>
       </LinkCard>
