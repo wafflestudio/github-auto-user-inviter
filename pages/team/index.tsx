@@ -152,6 +152,7 @@ const Team: React.FC = () => {
         >
           입력
         </Button>
+        <Button onClick={() => setFailedList([])}>목록 날리기</Button>
         <IDListWrapper>
           {failedList.map((item, i) => (
             <IDItem key={i}>{item}</IDItem>
