@@ -94,16 +94,24 @@ const Team: React.FC = () => {
     <>
       <FormCard>
         <CardContent>
-          {Object.entries(placeholders).map(([key, value], i) => (
+          {Object.entries(placeholders).map(([key, placeholder], i) => (
             <Input
               type={key === 'personal access token' ? 'password' : 'text'}
               autoComplete={'off'}
               key={i}
-              label={key}
+              label={
+                key === 'target usernames' ? `${key} (${values[key as keyof Form].split(',').filter((t) => t).length}명)` : key
+              }
               value={values[key as keyof Form]}
               name={key}
-              onChange={handleChange}
-              placeholder={value}
+              onChange={(e) => {
+                if (key === 'target usernames') {
+                  setFieldValue('target usernames', e.target.value.replace(/\s/g, ''));
+                } else {
+                  handleChange(e);
+                }
+              }}
+              placeholder={placeholder}
             />
           ))}
         </CardContent>
