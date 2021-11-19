@@ -11,7 +11,7 @@ type Form = {
   organization: string;
   role: string;
   'target usernames': string;
-  'team slug': string;
+  'team slugs': string;
 };
 
 const placeholders: { [key in keyof Form]: string } = {
@@ -19,7 +19,7 @@ const placeholders: { [key in keyof Form]: string } = {
   organization: 'wafflestudio',
   role: '권한: admin, direct_member, 또는 billing_manager',
   'target usernames': ', (콤마) 로 구분된 공백 없는 리스트여야 합니다. 예) woohm402,ars-ki-00,...',
-  'team slug': 'team-1',
+  'team slugs': ', (콤마) 로 구분된 공백 없는 리스트여야 합니다. 예) team-1,team-2,...',
 };
 
 const IDListWrapper = styled('ul')({
@@ -74,22 +74,27 @@ const Team: React.FC = () => {
       organization: '',
       role: 'direct_member',
       'target usernames': '',
-      'team slug': '',
+      'team slugs': '',
     },
     onSubmit: async (values) => {
       const usernames = values['target usernames'].split(',');
-      let teamId;
+      const team_slugs = values['team slugs'].split(',');
 
-      try {
-        teamId = await getTeamId(values['organization'], values['team slug'], values['personal access token']);
-      } catch (err) {
-        console.log('failed to get team id from team slug');
+      const teamIds = [];
+
+      for (const team_slug of team_slugs) {
+        try {
+          teamIds.push(await getTeamId(values['organization'], team_slug, values['personal access token']));
+        } catch (err) {
+          console.log(`[failed] ${team_slug}`);
+          return;
+        }
       }
 
       for (const item of usernames) {
         try {
           const userId = await getUserId(item, values['personal access token']);
-          await inviteUser(values.organization, userId, values['role'], teamId, values['personal access token']);
+          await inviteUser(values.organization, userId, values['role'], teamIds, values['personal access token']);
           console.log(`[succeed] ${item}`);
           setSucceedList((list) => [...list, item]);
         } catch (err) {
@@ -110,10 +115,10 @@ const Team: React.FC = () => {
     return response.data.id;
   };
 
-  const inviteUser = async (org: string, userId: number, role: string, teamId: number, token: string) => {
+  const inviteUser = async (org: string, userId: number, role: string, teamIds: number[], token: string) => {
     await requester.post(
       `/orgs/${org}/invitations`,
-      { invitee_id: userId, role, team_ids: [teamId] },
+      { invitee_id: userId, role, team_ids: teamIds },
       {
         headers: {
           Authorization: `token ${token}`,
