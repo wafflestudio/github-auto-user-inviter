@@ -10,6 +10,7 @@ type Form = {
   'personal access token': string;
   organization: string;
   'team slug': string;
+  permission: string;
   'target usernames': string;
 };
 
@@ -17,6 +18,7 @@ const placeholders: { [key in keyof Form]: string } = {
   'personal access token': 'your github personal access token',
   organization: 'wafflestudio',
   'team slug': `team-1`,
+  permission: '권한: member 또는 maintainer',
   'target usernames': ', (콤마) 로 구분된 공백 없는 리스트여야 합니다. 예) woohm402,ars-ki-00,...',
 };
 
@@ -67,27 +69,39 @@ const Team: React.FC = () => {
   const [failedList, setFailedList] = useState<string[]>([]);
 
   const { values, submitForm, handleChange, setFieldValue } = useFormik<Form>({
-    initialValues: { 'personal access token': '', organization: '', 'team slug': '', 'target usernames': '' },
+    initialValues: {
+      'personal access token': '',
+      organization: '',
+      'team slug': '',
+      permission: 'member',
+      'target usernames': '',
+    },
     onSubmit: async (values) => {
       const usernames = values['target usernames'].split(',');
 
       for (const item of usernames) {
         try {
-          await inviteUser(values.organization, values['team slug'], item, values['personal access token']);
+          await inviteUser(values.organization, values['team slug'], item, values['permission'], values['personal access token']);
+          console.log(`[succeed] ${item}`);
           setSucceedList((list) => [...list, item]);
         } catch (err) {
+          console.log(`[failed ] ${item}`);
           setFailedList((list) => [...list, item]);
         }
       }
     },
   });
 
-  const inviteUser = async (org: string, teamSlug: string, username: string, token: string) => {
-    await requester.put(`/orgs/${org}/teams/${teamSlug}/memberships/${username}`, null, {
-      headers: {
-        Authorization: `token ${token}`,
-      },
-    });
+  const inviteUser = async (org: string, teamSlug: string, username: string, permission: string, token: string) => {
+    await requester.put(
+      `/orgs/${org}/teams/${teamSlug}/memberships/${username}`,
+      { role: permission },
+      {
+        headers: {
+          Authorization: `token ${token}`,
+        },
+      }
+    );
   };
 
   return (
