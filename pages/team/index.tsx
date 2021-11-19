@@ -66,7 +66,7 @@ const Team: React.FC = () => {
   const [succeedList, setSucceedList] = useState<string[]>([]);
   const [failedList, setFailedList] = useState<string[]>([]);
 
-  const { values, submitForm, handleChange } = useFormik<Form>({
+  const { values, submitForm, handleChange, setFieldValue } = useFormik<Form>({
     initialValues: { 'personal access token': '', organization: '', 'team slug': '', 'target usernames': '' },
     onSubmit: async (values) => {
       const usernames = values['target usernames'].split(',');
@@ -113,8 +113,14 @@ const Team: React.FC = () => {
         </IDListWrapper>
       </IDListSucceedCard>
       <IDListFailedCard>
-        <span>실패 아이디 목록</span>{' '}
-        <Button onClick={() => navigator.clipboard.writeText(failedList.join(','))}>포맷에 맞게 복사</Button>
+        <span>실패 아이디 목록</span> <Button onClick={() => navigator.clipboard.writeText(failedList.join(','))}>복사</Button>
+        <Button
+          onClick={() => {
+            setFieldValue('target usernames', failedList.join(','));
+          }}
+        >
+          입력
+        </Button>
         <IDListWrapper>
           {failedList.map((item, i) => (
             <IDItem key={i}>{item}</IDItem>
