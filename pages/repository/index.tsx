@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Button, Card, CardActions, CardContent, styled, TextField } from '@mui/material';
+import { Button, Card, CardActions, CardContent, styled, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 
 import { requester } from '../../apis/requester';
@@ -107,6 +107,9 @@ const Repository: React.FC = () => {
 
   return (
     <>
+      <Typography variant="h4" sx={{ marginLeft: '5vw', marginTop: '15px' }}>
+        /repository
+      </Typography>
       <FormCard>
         <CardContent>
           {Object.entries(placeholders).map(([key, placeholder], i) => (
