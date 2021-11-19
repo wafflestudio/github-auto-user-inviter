@@ -9,17 +9,17 @@ import { requester } from '../../apis/requester';
 type Form = {
   'personal access token': string;
   organization: string;
-  'team slug': string;
-  permission: string;
+  role: string;
   'target usernames': string;
+  'team slugs': string;
 };
 
 const placeholders: { [key in keyof Form]: string } = {
   'personal access token': 'your github personal access token',
   organization: 'wafflestudio',
-  'team slug': `team-1`,
-  permission: '권한: member 또는 maintainer',
+  role: '권한: admin, direct_member, 또는 billing_manager',
   'target usernames': ', (콤마) 로 구분된 공백 없는 리스트여야 합니다. 예) woohm402,ars-ki-00,...',
+  'team slugs': ', (콤마) 로 구분된 공백 없는 리스트여야 합니다. 예) team-1,team-2,...',
 };
 
 const IDListWrapper = styled('ul')({
@@ -72,16 +72,29 @@ const Team: React.FC = () => {
     initialValues: {
       'personal access token': '',
       organization: '',
-      'team slug': '',
-      permission: 'member',
+      role: 'direct_member',
       'target usernames': '',
+      'team slugs': '',
     },
     onSubmit: async (values) => {
       const usernames = values['target usernames'].split(',');
+      const team_slugs = values['team slugs'].split(',');
+
+      const teamIds = [];
+
+      for (const team_slug of team_slugs) {
+        try {
+          teamIds.push(await getTeamId(values['organization'], team_slug, values['personal access token']));
+        } catch (err) {
+          console.log(`[failed] ${team_slug}`);
+          return;
+        }
+      }
 
       for (const item of usernames) {
         try {
-          await inviteUser(values.organization, values['team slug'], item, values['permission'], values['personal access token']);
+          const userId = await getUserId(item, values['personal access token']);
+          await inviteUser(values.organization, userId, values['role'], teamIds, values['personal access token']);
           console.log(`[succeed] ${item}`);
           setSucceedList((list) => [...list, item]);
         } catch (err) {
@@ -92,10 +105,20 @@ const Team: React.FC = () => {
     },
   });
 
-  const inviteUser = async (org: string, teamSlug: string, username: string, permission: string, token: string) => {
-    await requester.put(
-      `/orgs/${org}/teams/${teamSlug}/memberships/${username}`,
-      { role: permission },
+  const getTeamId = async (org: string, team_slug: string, token: string) => {
+    const response = await requester.get(`/orgs/${org}/teams/${team_slug}`, { headers: { Authorization: `token ${token}` } });
+    return response.data.id;
+  };
+
+  const getUserId = async (username: string, token: string) => {
+    const response = await requester.get(`/users/${username}`, { headers: { Authorization: `token ${token}` } });
+    return response.data.id;
+  };
+
+  const inviteUser = async (org: string, userId: number, role: string, teamIds: number[], token: string) => {
+    await requester.post(
+      `/orgs/${org}/invitations`,
+      { invitee_id: userId, role, team_ids: teamIds },
       {
         headers: {
           Authorization: `token ${token}`,
@@ -107,7 +130,7 @@ const Team: React.FC = () => {
   return (
     <>
       <Typography variant="h4" sx={{ marginLeft: '5vw', marginTop: '15px' }}>
-        /team
+        /organization
       </Typography>
       <FormCard>
         <CardContent>
